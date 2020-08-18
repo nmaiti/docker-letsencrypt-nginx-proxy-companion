@@ -40,9 +40,12 @@ COPY --from=go-builder /go/src/github.com/jwilder/docker-gen/docker-gen /usr/loc
 
 # Install acme.sh
 COPY /install_acme.sh /app/install_acme.sh
+# acme.sh commit to install from
+# defaults to release 2.8.6
+ARG ACME_SH_COMMITISH=9190fdd42c5332f8821ce3f0de91cf0d18fa07d5
 RUN chmod +rx /app/install_acme.sh \
     && sync \
-    && /app/install_acme.sh \
+    && /app/install_acme.sh "$ACME_SH_COMMITISH" \
     && rm -f /app/install_acme.sh
 
 COPY /app/ /app/
