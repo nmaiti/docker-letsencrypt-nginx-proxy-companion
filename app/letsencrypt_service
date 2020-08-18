@@ -226,6 +226,10 @@ function update_cert {
         params_d_arr+=("--domain" "$domain")
     done
 
+    # Remove previous acme.sh account configuration file to not override
+    # current settings with old ones (fix #2)
+    rm -f "/etc/acme.sh/$config_name/account.conf"
+
     echo "Creating/renewal $base_domain certificates... (${hosts_array_expanded[*]})"
     acme.sh --issue \
             --log /dev/null \
