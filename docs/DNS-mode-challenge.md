@@ -25,13 +25,13 @@ Example:
 
 * `dnsapi/dns_gandi_livedns.sh` has this comment:
 
-		  # Requires GANDI API KEY set in GANDI_LIVEDNS_KEY set as environment variable
-Then the settings would be:
+		# Requires GANDI API KEY set in GANDI_LIVEDNS_KEY set as environment variable
+   Then the settings would be:
   
 		- LETSENCRYPT_DNS_MODE_SETTINGS=export GANDI_LIVEDNS_KEY=<your_gandi_api_key>	
 * `dnsapi/dns_duckdns.sh` has this comment:
 
 		# export DuckDNS_Token="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-Then the settings would be:
+   Then the settings would be:
 
 		- LETSENCRYPT_DNS_MODE_SETTINGS=export DuckDNS_Token=<your_duckdns_token>
