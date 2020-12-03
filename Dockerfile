@@ -1,6 +1,15 @@
-FROM golang:1.14-alpine AS go-builder
+FROM --platform=linux/amd64 golang:1.14-alpine AS go-builder
+LABEL maintainer="Nabendu Maiti <nbmaiti83@gmail.com>"
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 ENV DOCKER_GEN_VERSION=0.7.4
+ENV FOREGO_VERSION=v0.16.1
+
 
 # Install build dependencies for docker-gen
 RUN apk add --update \
@@ -15,7 +24,13 @@ RUN go get github.com/jwilder/docker-gen \
     && cd /go/src/github.com/jwilder/docker-gen \
     && git checkout $DOCKER_GEN_VERSION \
     && make get-deps \
-    && make all
+	&& case "$TARGETVARIANT" in  \
+            v7) export GOARM='6' ;; \
+            v6) export GOARM='5' ;; \
+			*) echo "nothing here" ;;\
+     esac \
+	&& GOOS=$TARGETOS  GOARCH=$TARGETARCH go build ./cmd/docker-gen
+
 
 FROM alpine:3.11
 
