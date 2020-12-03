@@ -24,7 +24,7 @@ services:
       bridge:
 
   letsencrypt:
-    image: pinidh/letsencrypt-nginx-proxy-companion:latest
+    image: nbmaiti/letsencrypt-nginx-proxy-companion:latest
     container_name: letsencrypt
     restart: always
     depends_on:

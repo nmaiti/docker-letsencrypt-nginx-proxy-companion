@@ -1,60 +1,91 @@
-os: linux
-dist: trusty
-
-language: shell
-
-addons:
-  hosts:
-    - le1.wtf
-    - le2.wtf
-    - le3.wtf
+##### Temoporaryly removing Tests kkeping only builds
+language: bash
+dist: bionic
 
 env:
   global:
-    - IMAGE=pinidh/letsencrypt-nginx-proxy-companion
-    - NGINX_CONTAINER_NAME=nginx-proxy
-    - DOCKER_GEN_CONTAINER_NAME=nginx-proxy-gen
-    - TEST_DOMAINS=le1.wtf,le2.wtf,le3.wtf
-    - DOCKER_COMPOSE_VERSION=1.24.0
-
-jobs:
-  include:
-    - env: SETUP=2containers
-    - env: SETUP=3containers
-    - os: linux
-      dist: xenial
-      env: SETUP=2containers
-    - os: linux
-      dist: xenial
-      env: SETUP=3containers
-    - os: linux
-      dist: bionic
-      env: SETUP=2containers
-    - os: linux
-      dist: bionic
-      env: SETUP=3containers
-  allow_failures:
-    - dist: bionic
-  fast_finish: true
-
+    - DOCKER_REPO=letsencrypt-nginx-proxy-companion
+branches:
+  only:
+    - master
 before_install:
-  - test/travis/update-docker-compose.sh
-
+  - curl -fsSL https://get.docker.com | sh
+  - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
+  - mkdir -p $HOME/.docker
+  - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
+  - sudo service docker start
+  - docker version
+  - docker info
+  # prepare docker test requirements
 install:
-  - docker build -t "$IMAGE" .
-  - docker inspect "$IMAGE"
-  - docker run --rm "$IMAGE" acme.sh --version
-  - docker images
-
-before_script:
-  - git clone https://github.com/docker-library/official-images.git official-images
-  - test/setup/setup-boulder.sh
-  - test/setup/setup-nginx-proxy.sh
-  - docker pull nginx:alpine
-
+  - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  - docker buildx create --name xbuilder --use
 script:
-  - official-images/test/run.sh "$IMAGE"
-  - test/run.sh "$IMAGE"
-
-after_failure:
-  - test/travis/containers-logs.sh
+  - bash ci.sh
+###os: linux
+###dist: trusty
+###
+###language: shell
+###
+###addons:
+###  hosts:
+###    - le1.wtf
+###    - le2.wtf
+###    - le3.wtf
+###
+###env:
+###  global:
+###    - IMAGE=pinidh/letsencrypt-nginx-proxy-companion
+###    - NGINX_CONTAINER_NAME=nginx-proxy
+###    - DOCKER_GEN_CONTAINER_NAME=nginx-proxy-gen
+###    - TEST_DOMAINS=le1.wtf,le2.wtf,le3.wtf
+###    - DOCKER_COMPOSE_VERSION=1.24.0
+###
+###jobs:
+###  include:
+###    - env: SETUP=2containers
+###    - env: SETUP=3containers
+###    - os: linux
+###      dist: xenial
+###      env: SETUP=2containers
+###    - os: linux
+###      dist: xenial
+###      env: SETUP=3containers
+###    - os: linux
+###      dist: bionic
+###      env: SETUP=2containers
+###    - os: linux
+###      dist: bionic
+###      env: SETUP=3containers
+###  allow_failures:
+###    - dist: bionic
+###  fast_finish: true
+###
+###before_install:
+###  - curl -fsSL https://get.docker.com | sh
+###  - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
+###  - mkdir -p $HOME/.docker
+###  - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
+###  - sudo service docker start
+###  - docker version
+###  - docker info
+###  - test/travis/update-docker-compose.sh
+###
+###install:
+###  - docker build -t "$IMAGE" .
+###  - docker inspect "$IMAGE"
+###  - docker run --rm "$IMAGE" acme.sh --version
+###  - docker images
+###
+###before_script:
+###  - git clone https://github.com/docker-library/official-images.git official-images
+###  - test/setup/setup-boulder.sh
+###  - test/setup/setup-nginx-proxy.sh
+###  - docker pull nginx:alpine
+###
+###script:
+###  - official-images/test/run.sh "$IMAGE"
+###  - test/run.sh "$IMAGE"
+###
+###after_failure:
+###  - test/travis/containers-logs.sh
